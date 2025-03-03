@@ -1,0 +1,11 @@
+/* Mapas.css */
+.map-container {
+    width: 100%;
+    height: 80vh; /* Ocupa toda la altura de la ventana */
+  }
+  
+  .map-view {
+    width: 100%;
+    height: 100%;
+  }
+

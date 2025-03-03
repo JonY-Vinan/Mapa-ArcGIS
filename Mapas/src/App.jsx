@@ -3,7 +3,8 @@ import { useState } from 'react'
 import './App.css'
 
 
-import Header from '/src/components/Header.jsx';
+import Header from './components/Header/Header.jsx';
+import Mapas from './components/Mapas/Mapa.jsx';
 
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
     <>
       <div>
         <Header />
+        <Mapas />
       </div>
     </>
   )
