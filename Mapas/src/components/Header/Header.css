@@ -1,0 +1,35 @@
+/* Header.css */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #333;
+    color: #fff;
+    width: 100%
+  }
+
+  .header-hc{
+    display: flex;
+    gap: 20px
+  }
+  
+  .logo {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logoImage {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .menu {
+    display: flex;
+    align-items: center;
+  }
+  
+  .menuText {
+    font-size: 18px;
+    font-weight: bold;
+  }
