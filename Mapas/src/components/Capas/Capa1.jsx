@@ -1,42 +1,23 @@
-// src/App.jsx
-import React, { useEffect, useRef, useState } from 'react';
-import Map from '@arcgis/core/Map';
-import MapView from '@arcgis/core/views/MapView';
-import Capa1 from './components/Capa1';
+import React, { useEffect } from 'react';
+import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 
-function App() {
-  const mapRef = useRef(null);
-  const [mapView, setMapView] = useState(null);
-
+const Capa1 = ({ mapView, capa1Visible }) => {
   useEffect(() => {
-    // Inicializar el mapa
-    const map = new Map({
-      basemap: 'arcgis-topographic',
-    });
+    if (!mapView) return;
 
-    // Inicializar la vista del mapa
-    const view = new MapView({
-      container: mapRef.current,
-      map: map,
-      center: [-118.805, 34.027], // Longitud, Latitud
-      zoom: 13,
-    });
+    const capa1Url = "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trailheads/FeatureServer/0";
 
-    setMapView(view);
+    if (capa1Visible) {
+      const layer1 = new FeatureLayer({ url: capa1Url });
+      mapView.map.add(layer1);
+    } else {
+      const layer1 = mapView.map.layers.find(layer => layer.url === capa1Url);
+      if (layer1) mapView.map.remove(layer1);
+    }
 
-    return () => {
-      // Limpiar la vista del mapa cuando el componente se desmonte
-      view.destroy();
-    };
-  }, []);
+  }, [capa1Visible, mapView]);
 
-  return (
-    <div className="App">
-      <h1>Mapa de ArcGIS con React y Vite</h1>
-      <div ref={mapRef} style={{ height: '500px', width: '100%' }}></div>
-      {mapView && <Capa1 mapView={mapView} />}
-    </div>
-  );
-}
+  return null; // No necesitamos renderizar nada en este componente
+};
 
-export default App;
+export default Capa1;

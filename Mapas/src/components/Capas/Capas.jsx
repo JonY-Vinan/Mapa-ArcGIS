@@ -1,13 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import './Capas.css'; // Importamos el archivo CSS
+import './Capas.css';
+import Capa1 from './Capa1';
 
-const Capas = () => {
-  const [isNavOpen, setIsNavOpen] = useState(false); // Estado para el menú lateral
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Estado para el dropdown
-  const [isFirstLayerChecked, setIsFirstLayerChecked] = useState(false); // Estado para el checkbox
-  const dropdownRef = useRef(null); // Referencia para el dropdown
+const Capas = ({ capa1Visible, setCapa1Visible, mapView }) => {
+  const [isNavOpen, setIsNavOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
-  // Función para abrir/cerrar el menú lateral
   const openNav = () => {
     setIsNavOpen(true);
   };
@@ -16,17 +15,10 @@ const Capas = () => {
     setIsNavOpen(false);
   };
 
-  // Función para abrir/cerrar el dropdown
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  // Función para manejar el cambio del checkbox
-  const handleCheckboxChange = () => {
-    setIsFirstLayerChecked(!isFirstLayerChecked);
-  };
-
-  // Cerrar el dropdown si se hace clic fuera de él
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -42,7 +34,6 @@ const Capas = () => {
 
   return (
     <div>
-      {/* Side Navigation */}
       <div id="mySidenav" className="sidenav" style={{ width: isNavOpen ? '250px' : '0' }}>
         <a href="javascript:void(0)" className="closebtn" onClick={closeNav}>
           &times;
@@ -50,7 +41,7 @@ const Capas = () => {
         <div>
           <h2 id="titleHeader" className="accordion-header">
             <button className="dropbtn" onClick={toggleDropdown}>
-              Dropdown
+              Listado
               <i className="fa fa-caret-down"></i>
             </button>
             <div
@@ -58,33 +49,23 @@ const Capas = () => {
               id="myDropdown"
               ref={dropdownRef}
             >
-              <div>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={isFirstLayerChecked}
-                    onChange={handleCheckboxChange}
-                  />
-                  Primera capa
-                </label>
-              </div>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={capa1Visible}
+                  onChange={(e) => setCapa1Visible(e.target.checked)}
+                />
+                Activar Capa 1 (Trailheads)
+              </label>
+              <Capa1 mapView={mapView} capa1Visible={capa1Visible} />
             </div>
           </h2>
         </div>
-        
       </div>
 
-      {/* Main Content */}
       <span className="open-btn" onClick={openNav}>
         &#9776; CAPAS
       </span>
-
-      {/* Texto que se muestra/oculta según el estado del checkbox */}
-      {isFirstLayerChecked && (
-        <div className="texto-primera-capa">
-          Este es el texto de la primera capa.
-        </div>
-      )}
     </div>
   );
 };
