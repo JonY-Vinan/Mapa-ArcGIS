@@ -29,7 +29,7 @@ const Capas = ({ mapView }) => {
   const closeNav = () => setIsNavOpen(false);
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
-  
+
 
   const toggleCapa = (capa, isVisible) => {
     const newLista = listacp.map((cp) => {
@@ -42,65 +42,81 @@ const Capas = ({ mapView }) => {
     setListacp(newLista);
     setCapaModificada(capa);
   };
-const GeoJsonFromProject = async (filePath, zoomToExtent) => {
+
+  const cargarCapa = async (layer) => {
+    try {
+      await layer.when(); // Aseguramos que la capa esté lista
+      if (layer.fullExtent) {
+        await mapView.goTo(layer.fullExtent); // Solo hacemos "goTo" si tiene una extensión válida
+      } else {
+        console.warn('La capa no tiene una extensión válida.');
+      }
+    } catch (error) {
+      console.error('Error al cargar la capa:', error);
+    }
+  };
+
+
+  const GeoJsonFromProject = async (filePath) => {
     try {
       const newLayer = new GeoJSONLayer({
         url: filePath,
-        id: filePath,
+        id: capaModificada.id,
         title: filePath.split('/').pop(),
         visible: true,
       });
-      newLayer.when(() => {
-        console.log("Spatial Reference:", newLayer.spatialReference);
-      });
-      mapView.map.add(newLayer);
-      setListacp([...listacp, { id: filePath, type: 'GeoJSONLayer', visible: true }]);
 
-      if (zoomToExtent) {
-        await newLayer.when();
-        mapView.goTo(newLayer.fullExtent);
-      }
+      //  mapView.map.add(newLayer);
+      // setListacp([...listacp, { id: filePath, type: 'GeoJSONLayer', visible: true }]);
+
+
+      return newLayer;
     } catch (error) {
       console.error('Error al cargar el archivo GeoJSON desde el proyecto:', error);
     }
   };
+
   useEffect(() => {
     if (!mapView || !capaModificada) return;
 
-    let layer = mapView.map.layers.find(layer => layer.id === capaModificada.id);
+    const cargarYAgregarCapa = async () => {
+      let layer = mapView.map.findLayerById(capaModificada.id);
 
-    if (!layer) {
-      switch (capaModificada.type) {
-        case "FeatureLayer":
-          layer = new FeatureLayer({ url: capaModificada.url, id: capaModificada.id });
-          break;
-        case "GeoJSONLayer":
-          GeoJsonFromProject(capaModificada.url, true);
-          layer = new GeoJSONLayer({ url: capaModificada.url, id: capaModificada.id });
-          break;
-        case "CSVLayer":
-          layer = new CSVLayer({ url: capaModificada.url, id: capaModificada.id });
-          break;
-        case "KMLLayer":
-          layer = new KMLLayer({ url: capaModificada.url, id: capaModificada.id });
-          break;
-        case "WMSLayer":
-          layer = new WMSLayer({ url: capaModificada.url, id: capaModificada.id });
-          break;
-        case "WMTSLayer":
-          layer = new WMTSLayer({ url: capaModificada.url, id: capaModificada.id });
-          break;
-        default:
-          console.warn(`Tipo de capa no soportado: ${capaModificada.type}`);
-          return;
+      if (!layer) {
+        switch (capaModificada.type) {
+          case "FeatureLayer":
+            layer = new FeatureLayer({ url: capaModificada.url, id: capaModificada.id });
+            break;
+          case "GeoJSONLayer":
+            layer = await GeoJsonFromProject(capaModificada.url, capaModificada.id);
+            break;
+          case "CSVLayer":
+            layer = new CSVLayer({ url: capaModificada.url, id: capaModificada.id });
+            break;
+          case "KMLLayer":
+            layer = new KMLLayer({ url: capaModificada.url, id: capaModificada.id });
+            break;
+          case "WMSLayer":
+            layer = new WMSLayer({ url: capaModificada.url, id: capaModificada.id });
+            break;
+          case "WMTSLayer":
+            layer = new WMTSLayer({ url: capaModificada.url, id: capaModificada.id });
+            break;
+          default:
+            console.warn(`Tipo de capa no soportado: ${capaModificada.type}`);
+            return;
+        }
+
+        mapView.map.add(layer);
+        await cargarCapa(layer);
       }
 
-      mapView.map.add(layer);
-    }
+      if (layer) {
+        layer.visible = ocultarVisiblisar;
+      }
+    };
 
-    if (layer) {
-      layer.visible = ocultarVisiblisar;
-    }
+    cargarYAgregarCapa();
   }, [capaModificada, ocultarVisiblisar, mapView]);
 
   return (
