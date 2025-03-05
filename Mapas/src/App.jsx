@@ -5,7 +5,7 @@ import Mapas from './components/Mapas/Mapa.jsx';
 import Capas from './components/Capas/Capas.jsx';
 
 function App() {
-  const [capa1Visible, setCapa1Visible] = useState(false);
+  // const [capa1Visible, setCapa1Visible] = useState(false);
   // const [capa2Visible, setCapa2Visible] = useState(false);
   const [mapView, setMapView] = useState(null);
 
@@ -13,8 +13,9 @@ function App() {
     <>
       <div>
         <Header />
-        <Capas capa1Visible={capa1Visible} setCapa1Visible={setCapa1Visible} mapView={mapView} />
+        <Capas mapView={mapView} />
         <Mapas setMapView={setMapView} />
+       
       </div>
     </>
   );

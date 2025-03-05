@@ -9,16 +9,17 @@ const Mapa = ({ setMapView }) => {
   useEffect(() => {
     // Inicializar el mapa base
     const map = new Map({
-      basemap: 'topo-vector',
+      basemap: 'gray-vector',
     });
 
     // Inicializar la vista del mapa
     const view = new MapView({
-      container: mapRef.current,
-      map: map,
-      center: [-118.805, 34.027],
-      zoom: 13,
+      container: mapRef.current, // Contenedor del mapa
+      map: map, // Mapa creado previamente
+      center: [-2.92528, 43.26271], // Coordenadas de Bilbao, España
+      zoom: 12 // Ajusta el nivel de zoom para ver Bilbao en detalle
     });
+    
 
     setMapView(view); // Pasamos el mapView a App.jsx
 
