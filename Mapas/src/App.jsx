@@ -8,13 +8,15 @@ function App() {
   // const [capa1Visible, setCapa1Visible] = useState(false);
   // const [capa2Visible, setCapa2Visible] = useState(false);
   const [mapView, setMapView] = useState(null);
+  const [mapSceneView, setMapSceneView] = useState(null);
+  
 
   return (
     <>
       <div>
         <Header />
-        <Capas mapView={mapView} />
-        <Mapas setMapView={setMapView} />
+        <Capas mapView={mapView}  mapSceneView={mapSceneView}/>
+        <Mapas setMapView={setMapView} setMapSceneView={setMapSceneView} />
        
       </div>
     </>

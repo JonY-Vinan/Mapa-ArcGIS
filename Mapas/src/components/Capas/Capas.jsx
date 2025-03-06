@@ -6,9 +6,10 @@ import CSVLayer from '@arcgis/core/layers/CSVLayer';
 import KMLLayer from '@arcgis/core/layers/KMLLayer';
 import WMSLayer from '@arcgis/core/layers/WMSLayer';
 import WMTSLayer from '@arcgis/core/layers/WMTSLayer';
+import SceneView from '@arcgis/core/views/SceneView';
 import PropTypes from 'prop-types';
 
-const Capas = ({ mapView }) => {
+const Capas = ({ mapView, mapSceneView }) => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -22,14 +23,12 @@ const Capas = ({ mapView }) => {
   ];
 
   const [capaModificada, setCapaModificada] = useState(null);
-  const [ocultarVisiblisar, setOcultarVisiblisar] = useState(false);
+  const [isLayerVisible, setIsLayerVisible] = useState(false);
   const [listacp, setListacp] = useState(listacapas);
 
   const openNav = () => setIsNavOpen(true);
   const closeNav = () => setIsNavOpen(false);
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
-
-
 
   const toggleCapa = (capa, isVisible) => {
     const newLista = listacp.map((cp) => {
@@ -38,16 +37,16 @@ const Capas = ({ mapView }) => {
       }
       return cp;
     });
-    setOcultarVisiblisar(isVisible);
+    setIsLayerVisible(isVisible);
     setListacp(newLista);
     setCapaModificada(capa);
   };
 
-  const cargarCapa = async (layer) => {
+  const cargarCapa = async (layer , map) => {
     try {
       await layer.when(); // Aseguramos que la capa esté lista
       if (layer.fullExtent) {
-        await mapView.goTo(layer.fullExtent); // Solo hacemos "goTo" si tiene una extensión válida
+        await map.goTo(layer.fullExtent); // Solo hacemos "goTo" si tiene una extensión válida
       } else {
         console.warn('La capa no tiene una extensión válida.');
       }
@@ -55,7 +54,6 @@ const Capas = ({ mapView }) => {
       console.error('Error al cargar la capa:', error);
     }
   };
-
 
   const GeoJsonFromProject = async (filePath) => {
     try {
@@ -66,10 +64,6 @@ const Capas = ({ mapView }) => {
         visible: true,
       });
 
-      //  mapView.map.add(newLayer);
-      // setListacp([...listacp, { id: filePath, type: 'GeoJSONLayer', visible: true }]);
-
-
       return newLayer;
     } catch (error) {
       console.error('Error al cargar el archivo GeoJSON desde el proyecto:', error);
@@ -77,30 +71,39 @@ const Capas = ({ mapView }) => {
   };
 
   useEffect(() => {
-    if (!mapView || !capaModificada) return;
+    if (!mapView || !mapSceneView || !capaModificada) return;
 
     const cargarYAgregarCapa = async () => {
       let layer = mapView.map.findLayerById(capaModificada.id);
+      let layer3d = mapSceneView.map.findLayerById(capaModificada.id);
 
-      if (!layer) {
+      if (!layer && !layer3d) {
         switch (capaModificada.type) {
           case "FeatureLayer":
+
             layer = new FeatureLayer({ url: capaModificada.url, id: capaModificada.id });
+            layer3d = new FeatureLayer({ url: capaModificada.url, id: capaModificada.id });
+            // layer3d = agregarFeatureLayer(capaModificada.url, capaModificada.id);
             break;
           case "GeoJSONLayer":
-            layer = await GeoJsonFromProject(capaModificada.url, capaModificada.id);
+            layer = await GeoJsonFromProject(capaModificada.url);
+            layer3d = await GeoJsonFromProject(capaModificada.url);
             break;
           case "CSVLayer":
             layer = new CSVLayer({ url: capaModificada.url, id: capaModificada.id });
+            layer3d = new CSVLayer({ url: capaModificada.url, id: capaModificada.id });
             break;
           case "KMLLayer":
             layer = new KMLLayer({ url: capaModificada.url, id: capaModificada.id });
+            layer3d = new KMLLayer({ url: capaModificada.url, id: capaModificada.id });
             break;
           case "WMSLayer":
             layer = new WMSLayer({ url: capaModificada.url, id: capaModificada.id });
+            layer3d = new WMSLayer({ url: capaModificada.url, id: capaModificada.id });
             break;
           case "WMTSLayer":
             layer = new WMTSLayer({ url: capaModificada.url, id: capaModificada.id });
+            layer3d = new WMTSLayer({ url: capaModificada.url, id: capaModificada.id });
             break;
           default:
             console.warn(`Tipo de capa no soportado: ${capaModificada.type}`);
@@ -108,16 +111,19 @@ const Capas = ({ mapView }) => {
         }
 
         mapView.map.add(layer);
-        await cargarCapa(layer);
+        mapSceneView.map.add(layer3d);
+        await cargarCapa(layer, mapView);
+        await cargarCapa(layer3d, mapSceneView);
       }
 
-      if (layer) {
-        layer.visible = ocultarVisiblisar;
+      if (layer || layer3d) {
+        layer.visible = isLayerVisible;
+        layer3d.visible = isLayerVisible;
       }
     };
 
     cargarYAgregarCapa();
-  }, [capaModificada, ocultarVisiblisar, mapView]);
+  }, [capaModificada, isLayerVisible, mapView, mapSceneView]);
 
   return (
     <div>
@@ -146,6 +152,7 @@ const Capas = ({ mapView }) => {
 
 Capas.propTypes = {
   mapView: PropTypes.object.isRequired,
+  mapSceneView: PropTypes.object.isRequired,
 };
 
-export default Capas; 
+export default Capas;
