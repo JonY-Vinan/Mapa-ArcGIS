@@ -10,13 +10,15 @@ function App() {
   const [mapView, setMapView] = useState(null);
   const [mapSceneView, setMapSceneView] = useState(null);
   
+  //Base map
+  const [baseMap, setBaseMap] = useState('gray-vector');
 
   return (
     <>
       <div>
         <Header />
-        <Capas mapView={mapView}  mapSceneView={mapSceneView}/>
-        <Mapas setMapView={setMapView} setMapSceneView={setMapSceneView} />
+        <Capas mapView={mapView}  mapSceneView={mapSceneView} setBaseMap={setBaseMap}/>
+        <Mapas setMapView={setMapView} setMapSceneView={setMapSceneView} baseMap={baseMap}/>
        
       </div>
     </>

@@ -9,7 +9,7 @@ import WMTSLayer from '@arcgis/core/layers/WMTSLayer';
 import SceneView from '@arcgis/core/views/SceneView';
 import PropTypes from 'prop-types';
 
-const Capas = ({ mapView, mapSceneView }) => {
+const Capas = ({ mapView, mapSceneView, setBaseMap }) => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -22,9 +22,48 @@ const Capas = ({ mapView, mapSceneView }) => {
     // Agrega más capas según sea necesario
   ];
 
+  const listaBaseMapas = [
+    {
+      id: "streets",
+      title: "Street Map",
+      basemap: "streets",// Basemap de calles
+      visible: false,
+    },
+    {
+      id: "topo",
+      title: "Topographic Map",
+      basemap: "topo", // Basemap topográfico
+      visible: false,
+
+    },
+    {
+      id: "satellite",
+      title: "Satellite Imagery",
+      basemap: "satellite",// Basemap de imágenes satelitales
+      visible: false,
+
+    },
+    {
+      id: "hybrid",
+      title: "Hybrid Map",
+      basemap: "hybrid", // Basemap híbrido (satélite con calles)
+      visible: false,
+    },
+    {
+      id: "dark-gray",
+      title: "Dark Gray Canvas",
+      basemap: "dark-gray",// Basemap oscuro en escala de grises
+      visible: false,
+    }
+  ];
+
+
   const [capaModificada, setCapaModificada] = useState(null);
   const [isLayerVisible, setIsLayerVisible] = useState(false);
+  const [isBaseMapVisible, setIsBaseMapVisible] = useState(false);
+
   const [listacp, setListacp] = useState(listacapas);
+  const [listaBaseMaps, setlistaBaseMaps] = useState(listaBaseMapas);
 
   const openNav = () => setIsNavOpen(true);
   const closeNav = () => setIsNavOpen(false);
@@ -42,7 +81,21 @@ const Capas = ({ mapView, mapSceneView }) => {
     setCapaModificada(capa);
   };
 
-  const cargarCapa = async (layer , map) => {
+  const toggleBaseMapa = (basemapa, isVisible) => {
+    debugger
+    const newListaMapas = listaBaseMaps.map((bmap) => {
+      if (basemapa.title === bmap.title) {
+        bmap.visible = isVisible;
+      }
+      return bmap;
+    });
+    basemapa.visible=isVisible;
+    setIsBaseMapVisible(isVisible);
+    setlistaBaseMaps(newListaMapas);
+    setBaseMap(basemapa);
+  };
+
+  const cargarCapa = async (layer, map) => {
     try {
       await layer.when(); // Aseguramos que la capa esté lista
       if (layer.fullExtent) {
@@ -124,7 +177,7 @@ const Capas = ({ mapView, mapSceneView }) => {
 
     cargarYAgregarCapa();
   }, [capaModificada, isLayerVisible, mapView, mapSceneView]);
-
+  
   return (
     <div>
       <div id="mySidenav" className="sidenav" style={{ width: isNavOpen ? '250px' : '0' }}>
@@ -142,7 +195,21 @@ const Capas = ({ mapView, mapSceneView }) => {
             </div>
           ))}
         </div>
+
+        <button className="dropbtn" onClick={toggleDropdown}>Listado BaseMap</button>
+        <div className={`dropdown-content ${isDropdownOpen ? 'show' : ''}`} id="myDropdown">
+          {listaBaseMaps.map((basemapa, index) => (
+            <div key={basemapa.id}>
+              <label>
+                <input type="checkbox" checked={basemapa.visible} onChange={(e) => toggleBaseMapa(basemapa, e.target.checked)} />
+                {`Basemap ${basemapa.basemap}`}
+              </label>
+            </div>
+          ))}
+        </div>
       </div>
+
+
       <span className="open-btn" onClick={openNav}>
         &#9776; CAPAS
       </span>
