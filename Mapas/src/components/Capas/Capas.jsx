@@ -14,19 +14,13 @@ const Capas = ({ mapView, mapSceneView, setBaseMap }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const listacapas = [
-    { id: "AAA", url: "https://geo.bizkaia.eus/arcgisserverinspire/rest/services/Kartografia_Cartografia/ML_UdalMugarteak_LimitesMunicipales/MapServer/2", type: "FeatureLayer", visible: false },
-    { id: "BBB", url: "https://geo.bizkaia.eus/arcgisserverinspire/rest/services/Kartografia_Cartografia/SareKartografikoak_MallasCartograficas/MapServer/2", type: "FeatureLayer", visible: false },
-    { id: "PPP", url: "/mapas/f12-circuits.geojson", type: "GeoJSONLayer", visible: false },
-    { id: "CCC", url: "/mapas/jp-1962.geojson", type: "GeoJSONLayer", visible: false },
-    // Agrega más capas según sea necesario
-  ];
+  const [circuitosF1, setCircuitosF1] = useState([]); // Cambiar a estado
 
   const listaBaseMapas = [
     {
       id: "streets",
       title: "Street Map",
-      basemap: "streets",// Basemap de calles
+      basemap: "streets", // Basemap de calles
       visible: false,
     },
     {
@@ -34,14 +28,12 @@ const Capas = ({ mapView, mapSceneView, setBaseMap }) => {
       title: "Topographic Map",
       basemap: "topo", // Basemap topográfico
       visible: false,
-
     },
     {
       id: "satellite",
       title: "Satellite Imagery",
-      basemap: "satellite",// Basemap de imágenes satelitales
+      basemap: "satellite", // Basemap de imágenes satelitales
       visible: false,
-
     },
     {
       id: "hybrid",
@@ -52,17 +44,15 @@ const Capas = ({ mapView, mapSceneView, setBaseMap }) => {
     {
       id: "dark-gray",
       title: "Dark Gray Canvas",
-      basemap: "dark-gray",// Basemap oscuro en escala de grises
+      basemap: "dark-gray", // Basemap oscuro en escala de grises
       visible: false,
     }
   ];
 
-
   const [capaModificada, setCapaModificada] = useState(null);
   const [isLayerVisible, setIsLayerVisible] = useState(false);
   const [isBaseMapVisible, setIsBaseMapVisible] = useState(false);
-
-  const [listacp, setListacp] = useState(listacapas);
+  const [listacp, setListacp] = useState(circuitosF1);
   const [listaBaseMaps, setlistaBaseMaps] = useState(listaBaseMapas);
 
   const openNav = () => setIsNavOpen(true);
@@ -82,18 +72,50 @@ const Capas = ({ mapView, mapSceneView, setBaseMap }) => {
   };
 
   const toggleBaseMapa = (basemapa, isVisible) => {
-    debugger
     const newListaMapas = listaBaseMaps.map((bmap) => {
       if (basemapa.title === bmap.title) {
         bmap.visible = isVisible;
       }
       return bmap;
     });
-    basemapa.visible=isVisible;
+    basemapa.visible = isVisible;
     setIsBaseMapVisible(isVisible);
     setlistaBaseMaps(newListaMapas);
     setBaseMap(basemapa);
   };
+
+  // URL de la API de GitHub para obtener el contenido del directorio
+  const apiUrl = "https://api.github.com/repos/bacinger/f1-circuits/contents/circuits";
+
+  // Función para obtener la lista de archivos .geojson
+  const obtenerArchivosGeoJSON = async () => {
+    try {
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+
+      // Filtrar solo los archivos .geojson
+      const archivosGeoJSON = data.filter((archivo) => archivo.name.endsWith('.geojson'));
+
+      // Generar las URLs "raw" para cada archivo
+      const nuevosCircuitos = archivosGeoJSON.map((archivo) => ({
+        id: archivo.name.replace('.geojson', ''), // Usar el nombre del archivo como ID
+        url: archivo.download_url, // URL "raw" del archivo
+        type: "GeoJSONLayer",
+        visible: false,
+      }));
+
+      // Actualizar el estado de circuitosF1 y listacp
+      setCircuitosF1(nuevosCircuitos);
+      setListacp(nuevosCircuitos);
+    } catch (error) {
+      console.error('Error al obtener los archivos:', error);
+    }
+  };
+
+  // Llamar a la función cuando el componente se monte
+  useEffect(() => {
+    obtenerArchivosGeoJSON();
+  }, []);
 
   const cargarCapa = async (layer, map) => {
     try {
@@ -111,9 +133,9 @@ const Capas = ({ mapView, mapSceneView, setBaseMap }) => {
   const GeoJsonFromProject = async (filePath) => {
     try {
       const newLayer = new GeoJSONLayer({
-        url: filePath,
-        id: capaModificada.id,
-        title: filePath.split('/').pop(),
+        url: filePath,  // Aquí pasas la URL del archivo
+        id: capaModificada.id, // Usar el nombre del archivo como ID
+        title: filePath.split('/').pop(), // Asume que el nombre del archivo se encuentra al final de la URL
         visible: true,
       });
 
@@ -121,6 +143,46 @@ const Capas = ({ mapView, mapSceneView, setBaseMap }) => {
     } catch (error) {
       console.error('Error al cargar el archivo GeoJSON desde el proyecto:', error);
     }
+  };
+
+  const fileInputRef = useRef(null);
+
+  // Función para manejar la carga del archivo GeoJSON
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0]; // Obtener el archivo seleccionado
+    if (!file) return;
+
+    const reader = new FileReader(); // Crear un lector de archivos
+    reader.onload = (e) => {
+      try {
+        const geojson = JSON.parse(e.target.result); // Convertir el archivo a objeto GeoJSON
+
+        // Crear una URL temporal para el archivo
+        const fileUrl = URL.createObjectURL(file);
+
+        // Crear una capa GeoJSONLayer a partir del archivo
+        const geojsonLayer = new GeoJSONLayer({
+          url: fileUrl, // Usar la URL temporal
+          title: file.name, // Nombre del archivo como título de la capa
+          visible: true,
+        });
+
+        // Agregar la capa al mapa (tanto en 2D como en 3D)
+        if (mapView) {
+          mapView.map.add(geojsonLayer);
+        }
+        if (mapSceneView) {
+          mapSceneView.map.add(geojsonLayer);
+        }
+
+        // Actualizar la lista de capas
+        setListacp([...listacp, { id: file.name, url: fileUrl, type: "GeoJSONLayer", visible: true }]);
+      } catch (error) {
+        console.error('Error al cargar el archivo GeoJSON:', error);
+      }
+    };
+
+    reader.readAsText(file); // Leer el archivo como texto
   };
 
   useEffect(() => {
@@ -133,10 +195,8 @@ const Capas = ({ mapView, mapSceneView, setBaseMap }) => {
       if (!layer && !layer3d) {
         switch (capaModificada.type) {
           case "FeatureLayer":
-
             layer = new FeatureLayer({ url: capaModificada.url, id: capaModificada.id });
             layer3d = new FeatureLayer({ url: capaModificada.url, id: capaModificada.id });
-            // layer3d = agregarFeatureLayer(capaModificada.url, capaModificada.id);
             break;
           case "GeoJSONLayer":
             layer = await GeoJsonFromProject(capaModificada.url);
@@ -177,20 +237,20 @@ const Capas = ({ mapView, mapSceneView, setBaseMap }) => {
 
     cargarYAgregarCapa();
   }, [capaModificada, isLayerVisible, mapView, mapSceneView]);
-  
+
   return (
     <div>
       <div id="mySidenav" className="sidenav" style={{ width: isNavOpen ? '250px' : '0' }}>
         <a href="javascript:void(0)" className="closebtn" onClick={closeNav}>
           &times;
         </a>
-        <button className="dropbtn" onClick={toggleDropdown}>Listado de Cap</button>
+        <button className="dropbtn" onClick={toggleDropdown}>Listado de Circuitos</button>
         <div className={`dropdown-content ${isDropdownOpen ? 'show' : ''}`} id="myDropdown">
           {listacp.map((capa, index) => (
             <div key={capa.id}>
               <label>
                 <input type="checkbox" checked={capa.visible} onChange={(e) => toggleCapa(capa, e.target.checked)} />
-                {`Capa ${index + 1} (${capa.type})`}
+                {`Circuito ${capa.id}`}
               </label>
             </div>
           ))}
@@ -207,8 +267,30 @@ const Capas = ({ mapView, mapSceneView, setBaseMap }) => {
             </div>
           ))}
         </div>
-      </div>
 
+        {/* Botón para cargar el archivo GeoJSON */}
+        <button
+          onClick={() => fileInputRef.current.click()} // Simular clic en el input de archivo
+          style={{
+            padding: '10px',
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+          }}
+        >
+          Cargar GeoJSON
+        </button>
+        {/* Input de archivo oculto */}
+        <input
+          type="file"
+          accept=".geojson"
+          onChange={handleFileUpload}
+          ref={fileInputRef}
+          style={{ display: 'none' }} // Ocultar el input
+        />
+      </div>
 
       <span className="open-btn" onClick={openNav}>
         &#9776; CAPAS
