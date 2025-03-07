@@ -12,3 +12,43 @@
 .visibeMap{
   display: none;
 }
+
+
+.esri-ui-top-left.esri-ui-corner {
+  display: flex;
+  background: rgb(5, 5, 5);
+  position: absolute;
+  width: min-content;
+  height: max-content;
+  align-items: flex-end;
+  top: 11rem;
+  right: 4rem;
+  flex-direction: column;
+}
+
+.esri-ui-inner-container.esri-ui-manual-container {
+  display: none;
+}
+
+button.toggle-button {
+  /* display: flex
+; */
+  /* width: 100%; */
+  height: max-content;
+  top: 154px;
+  right: 4rem;
+  position: absolute;
+}
+/* 
+.toggle-button{
+  position: 'absolute';
+  top : '11rem';
+  right: '4rem';
+  z-index: 1000;
+  background: 'rgb(5, 5, 5)';
+  color: 'white';
+  border: 'none';
+  padding: '0.5rem 1rem';
+  border-radius: '4px';
+  cursor: 'pointer';
+} */

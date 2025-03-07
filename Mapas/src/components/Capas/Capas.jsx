@@ -184,7 +184,7 @@ const Capas = ({ mapView, mapSceneView, setBaseMap }) => {
         <a href="javascript:void(0)" className="closebtn" onClick={closeNav}>
           &times;
         </a>
-        <button className="dropbtn" onClick={toggleDropdown}>Listado de Capas</button>
+        <button className="dropbtn" onClick={toggleDropdown}>Listado de Cap</button>
         <div className={`dropdown-content ${isDropdownOpen ? 'show' : ''}`} id="myDropdown">
           {listacp.map((capa, index) => (
             <div key={capa.id}>

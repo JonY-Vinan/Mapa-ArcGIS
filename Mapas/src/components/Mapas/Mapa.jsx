@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Map from '@arcgis/core/Map';
 import MapView from '@arcgis/core/views/MapView';
 import SceneView from '@arcgis/core/views/SceneView';
+import Home from '@arcgis/core/widgets/Home'; // Importar el widget Home
 import './Mapa.css';
 
 const Mapa = ({ setMapView, setMapSceneView, baseMap }) => {
@@ -10,10 +11,27 @@ const Mapa = ({ setMapView, setMapSceneView, baseMap }) => {
 
   const [ocultarVisiblisarMapa, setOcultarVisiblisarMapa] = useState(false);
   const cambiarVista = () => setOcultarVisiblisarMapa(!ocultarVisiblisarMapa);
+  const [is3DView, setIs3DView] = useState(false);
+
+
+  // Función para cambiar entre 2D y 3D
+  const toggleView = () => {
+    setIs3DView(!is3DView); // Cambiar el estado
+    if (is3DView) {
+      // Cambiar a vista 2D
+      mapRef.current.style.display = 'block';
+      mapRef3D.current.style.display = 'none';
+    } else {
+      // Cambiar a vista 3D
+      mapRef.current.style.display = 'none';
+      mapRef3D.current.style.display = 'block';
+    }
+  };
 
   useEffect(() => {
     // Inicializar el mapa base
     const map = new Map({
+
       basemap: baseMap?.basemap ? baseMap.basemap : 'gray-vector',
     });
 
@@ -36,8 +54,17 @@ const Mapa = ({ setMapView, setMapSceneView, baseMap }) => {
       zoom: 12, // Ajusta el nivel de zoom para ver Bilbao en detalle
     });
 
+    // Crear el widget Home
+    const homeWidget = new Home({
+      view: view, // Asociar el widget a la vista 2D 
+    });
+
+    // Agregar el widget Home a la vista 2D
+    view.ui.add(homeWidget, 'top-left');
+
     setMapView(view); // Pasamos el mapView a App.jsx
     setMapSceneView(view3D); // Pasamos el SceneView a App.jsx
+
 
     return () => {
       // Limpiar la vista del mapa cuando el componente se desmonte
@@ -47,8 +74,8 @@ const Mapa = ({ setMapView, setMapSceneView, baseMap }) => {
 
   return (
     <div>
-      <button className="mapbtn" onClick={cambiarVista}>
-        Listado de Capas
+      <button className="toggle-button" onClick={toggleView}>
+        {is3DView ? '2D' : '3D'}
       </button>
       <div
         id="2d"
