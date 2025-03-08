@@ -81,7 +81,7 @@ const Mapa = ({ setMapView, setMapSceneView, baseMap }) => {
         id="2d"
         className={`${ocultarVisiblisarMapa ? 'visibeMap' : ''}`}
         ref={mapRef}
-        style={{ height: '80vh', width: '100%' }}
+        style={{ height: '100vh', width: '100%' }}
       ></div>
       <div
         id="3d"

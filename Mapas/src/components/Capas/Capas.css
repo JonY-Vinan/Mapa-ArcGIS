@@ -1,6 +1,6 @@
 /* Capas.css */
 .sidenav {
-  height: 300px;
+  height: 150px;
   width: 100%;
   position: fixed;
   z-index: 1;
@@ -52,7 +52,7 @@
 }
 
 .open-btn {
-  font-size: 30px;
+  font-size: 20px;
   cursor: pointer;
   position: fixed;
   bottom: 20px; /* Posición inicial del botón */
@@ -61,8 +61,8 @@
   background-color: #111; /* Fondo del botón */
   color: white; /* Color del texto */
   border-radius: 50%; /* Forma circular */
-  width: 50px;
-  height: 50px;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -72,5 +72,5 @@
 
 /* Cuando la barra está abierta, el botón sube junto con ella */
 .sidenav.open + .open-btn {
-  bottom: 320px; /* Ajusta esta posición según la altura de la barra */
+  bottom: 155px; /* Ajusta esta posición según la altura de la barra */
 }
