@@ -11,40 +11,41 @@ import PropTypes from 'prop-types';
 
 const Capas = ({ mapView, mapSceneView, setBaseMap }) => {
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isCircuitListOpen, setIsCircuitListOpen] = useState(false);
+  const [isBaseMapListOpen, setIsBaseMapListOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const [circuitosF1, setCircuitosF1] = useState([]); // Cambiar a estado
+  const [circuitosF1, setCircuitosF1] = useState([]);
 
   const listaBaseMapas = [
     {
       id: "streets",
       title: "Street Map",
-      basemap: "streets", // Basemap de calles
+      basemap: "streets",
       visible: false,
     },
     {
       id: "topo",
       title: "Topographic Map",
-      basemap: "topo", // Basemap topográfico
+      basemap: "topo",
       visible: false,
     },
     {
       id: "satellite",
       title: "Satellite Imagery",
-      basemap: "satellite", // Basemap de imágenes satelitales
+      basemap: "satellite",
       visible: false,
     },
     {
       id: "hybrid",
       title: "Hybrid Map",
-      basemap: "hybrid", // Basemap híbrido (satélite con calles)
+      basemap: "hybrid",
       visible: false,
     },
     {
       id: "dark-gray",
       title: "Dark Gray Canvas",
-      basemap: "dark-gray", // Basemap oscuro en escala de grises
+      basemap: "dark-gray",
       visible: false,
     }
   ];
@@ -55,9 +56,9 @@ const Capas = ({ mapView, mapSceneView, setBaseMap }) => {
   const [listacp, setListacp] = useState(circuitosF1);
   const [listaBaseMaps, setlistaBaseMaps] = useState(listaBaseMapas);
 
-  const openNav = () => setIsNavOpen(true);
-  const closeNav = () => setIsNavOpen(false);
-  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
+  const toggleNav = () => setIsNavOpen(!isNavOpen);
+  const toggleCircuitList = () => setIsCircuitListOpen(!isCircuitListOpen);
+  const toggleBaseMapList = () => setIsBaseMapListOpen(!isBaseMapListOpen);
 
   const toggleCapa = (capa, isVisible) => {
     const newLista = listacp.map((cp) => {
@@ -84,27 +85,19 @@ const Capas = ({ mapView, mapSceneView, setBaseMap }) => {
     setBaseMap(basemapa);
   };
 
-  // URL de la API de GitHub para obtener el contenido del directorio
   const apiUrl = "https://api.github.com/repos/bacinger/f1-circuits/contents/circuits";
 
-  // Función para obtener la lista de archivos .geojson
   const obtenerArchivosGeoJSON = async () => {
     try {
       const response = await fetch(apiUrl);
       const data = await response.json();
-
-      // Filtrar solo los archivos .geojson
       const archivosGeoJSON = data.filter((archivo) => archivo.name.endsWith('.geojson'));
-
-      // Generar las URLs "raw" para cada archivo
       const nuevosCircuitos = archivosGeoJSON.map((archivo) => ({
-        id: archivo.name.replace('.geojson', ''), // Usar el nombre del archivo como ID
-        url: archivo.download_url, // URL "raw" del archivo
+        id: archivo.name.replace('.geojson', ''),
+        url: archivo.download_url,
         type: "GeoJSONLayer",
         visible: false,
       }));
-
-      // Actualizar el estado de circuitosF1 y listacp
       setCircuitosF1(nuevosCircuitos);
       setListacp(nuevosCircuitos);
     } catch (error) {
@@ -112,16 +105,15 @@ const Capas = ({ mapView, mapSceneView, setBaseMap }) => {
     }
   };
 
-  // Llamar a la función cuando el componente se monte
   useEffect(() => {
     obtenerArchivosGeoJSON();
   }, []);
 
   const cargarCapa = async (layer, map) => {
     try {
-      await layer.when(); // Aseguramos que la capa esté lista
+      await layer.when();
       if (layer.fullExtent) {
-        await map.goTo(layer.fullExtent); // Solo hacemos "goTo" si tiene una extensión válida
+        await map.goTo(layer.fullExtent);
       } else {
         console.warn('La capa no tiene una extensión válida.');
       }
@@ -133,12 +125,11 @@ const Capas = ({ mapView, mapSceneView, setBaseMap }) => {
   const GeoJsonFromProject = async (filePath) => {
     try {
       const newLayer = new GeoJSONLayer({
-        url: filePath,  // Aquí pasas la URL del archivo
-        id: capaModificada.id, // Usar el nombre del archivo como ID
-        title: filePath.split('/').pop(), // Asume que el nombre del archivo se encuentra al final de la URL
+        url: filePath,
+        id: capaModificada.id,
+        title: filePath.split('/').pop(),
         visible: true,
       });
-
       return newLayer;
     } catch (error) {
       console.error('Error al cargar el archivo GeoJSON desde el proyecto:', error);
@@ -147,27 +138,21 @@ const Capas = ({ mapView, mapSceneView, setBaseMap }) => {
 
   const fileInputRef = useRef(null);
 
-  // Función para manejar la carga del archivo GeoJSON
   const handleFileUpload = (event) => {
-    const file = event.target.files[0]; // Obtener el archivo seleccionado
+    const file = event.target.files[0];
     if (!file) return;
 
-    const reader = new FileReader(); // Crear un lector de archivos
+    const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const geojson = JSON.parse(e.target.result); // Convertir el archivo a objeto GeoJSON
-
-        // Crear una URL temporal para el archivo
+        const geojson = JSON.parse(e.target.result);
         const fileUrl = URL.createObjectURL(file);
-
-        // Crear una capa GeoJSONLayer a partir del archivo
         const geojsonLayer = new GeoJSONLayer({
-          url: fileUrl, // Usar la URL temporal
-          title: file.name, // Nombre del archivo como título de la capa
+          url: fileUrl,
+          title: file.name,
           visible: true,
         });
 
-        // Agregar la capa al mapa (tanto en 2D como en 3D)
         if (mapView) {
           mapView.map.add(geojsonLayer);
         }
@@ -175,14 +160,13 @@ const Capas = ({ mapView, mapSceneView, setBaseMap }) => {
           mapSceneView.map.add(geojsonLayer);
         }
 
-        // Actualizar la lista de capas
         setListacp([...listacp, { id: file.name, url: fileUrl, type: "GeoJSONLayer", visible: true }]);
       } catch (error) {
         console.error('Error al cargar el archivo GeoJSON:', error);
       }
     };
 
-    reader.readAsText(file); // Leer el archivo como texto
+    reader.readAsText(file);
   };
 
   useEffect(() => {
@@ -240,60 +224,51 @@ const Capas = ({ mapView, mapSceneView, setBaseMap }) => {
 
   return (
     <div>
-      <div id="mySidenav" className="sidenav" style={{ width: isNavOpen ? '250px' : '0' }}>
-        <a href="javascript:void(0)" className="closebtn" onClick={closeNav}>
-          &times;
-        </a>
-        <button className="dropbtn" onClick={toggleDropdown}>Listado de Circuitos</button>
-        <div className={`dropdown-content ${isDropdownOpen ? 'show' : ''}`} id="myDropdown">
+      {/* Barra de navegación */}
+      <div id="mySidenav" className={`sidenav ${isNavOpen ? 'open' : ''}`}>
+        {/* Botón de Listado de Circuitos (izquierda) */}
+        <div className="left-section">
+          <button className="dropbtn" onClick={toggleCircuitList}>
+            Circuitos
+          </button>
+        </div>
+
+        {/* Lista de Circuitos (centro) */}
+        <div className={`center-section ${isCircuitListOpen ? 'show' : ''}`}>
           {listacp.map((capa, index) => (
             <div key={capa.id}>
               <label>
-                <input type="checkbox" checked={capa.visible} onChange={(e) => toggleCapa(capa, e.target.checked)} />
+                <input
+                  type="checkbox"
+                  checked={capa.visible}
+                  onChange={(e) => toggleCapa(capa, e.target.checked)}
+                />
                 {`Circuito ${capa.id}`}
               </label>
             </div>
           ))}
         </div>
 
-        <button className="dropbtn" onClick={toggleDropdown}>Listado BaseMap</button>
-        <div className={`dropdown-content ${isDropdownOpen ? 'show' : ''}`} id="myDropdown">
+        {/* Lista de Basemaps (derecha) */}
+        <div className="right-section">
           {listaBaseMaps.map((basemapa, index) => (
             <div key={basemapa.id}>
               <label>
-                <input type="checkbox" checked={basemapa.visible} onChange={(e) => toggleBaseMapa(basemapa, e.target.checked)} />
+                <input
+                  type="checkbox"
+                  checked={basemapa.visible}
+                  onChange={(e) => toggleBaseMapa(basemapa, e.target.checked)}
+                />
                 {`Basemap ${basemapa.basemap}`}
               </label>
             </div>
           ))}
         </div>
-
-        {/* Botón para cargar el archivo GeoJSON */}
-        <button
-          onClick={() => fileInputRef.current.click()} // Simular clic en el input de archivo
-          style={{
-            padding: '10px',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-          }}
-        >
-          Cargar GeoJSON
-        </button>
-        {/* Input de archivo oculto */}
-        <input
-          type="file"
-          accept=".geojson"
-          onChange={handleFileUpload}
-          ref={fileInputRef}
-          style={{ display: 'none' }} // Ocultar el input
-        />
       </div>
 
-      <span className="open-btn" onClick={openNav}>
-        &#9776; CAPAS
+      {/* Botón para abrir/cerrar la barra lateral */}
+      <span className="open-btn" onClick={toggleNav}>
+        &#9776;
       </span>
     </div>
   );

@@ -3,6 +3,7 @@ import './App.css';
 import Header from './components/Header/Header.jsx';
 import Mapas from './components/Mapas/Mapa.jsx';
 import Capas from './components/Capas/Capas.jsx';
+import Barra from './components/Capas/Barra.jsx';
 // import Fichero from './components/Capas/Fichero.jsx';
 
 function App() {
@@ -19,9 +20,7 @@ function App() {
       <div>
         <Header />
         <Capas mapView={mapView} mapSceneView={mapSceneView} setBaseMap={setBaseMap} />
-        {/* <Fichero mapView={mapView} /> */}
-        <Mapas setMapView={setMapView} setMapSceneView={setMapSceneView} baseMap={baseMap} />
-
+        <Mapas setMapView={setMapView} setMapSceneView={setMapSceneView} baseMap={baseMap} />  
       </div>
     </>
   );

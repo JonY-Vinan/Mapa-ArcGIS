@@ -1,98 +1,76 @@
 /* Capas.css */
 .sidenav {
-    height: 100%;
-    width: 0;
-    position: fixed;
-    z-index: 1;
-    top: 0;
-    left: 0;
-    background-color: #111;
-    overflow-x: hidden;
-    transition: 0.5s;
-    padding-top: 60px;
-  }
-  
-  .sidenav a {
-    padding: 8px 8px 8px 32px;
-    text-decoration: none;
-    font-size: 25px;
-    color: #818181;
-    display: block;
-    transition: 0.3s;
-  }
-  
-  .sidenav a:hover {
-    color: #f1f1f1;
-  }
-  
-  .sidenav .closebtn {
-    position: absolute;
-    top: 0;
-    right: 25px;
-    font-size: 36px;
-    margin-left: 50px;
-  }
-  
-  .open-btn {
-    font-size: 30px;
-    cursor: pointer;
-  }
-  
-  .dropbtn {
-    background-color: transparent;
-    color: white;
-    padding: 16px;
-    font-size: 25px;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .dropdown-content {
-    display: none;
-    /* position: absolute; */
-    background-color: transparent;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    z-index: 1;
-  }
-  
-  .dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-  }
-  
-  .dropdown-content a:hover {
-    background-color: #f1f1f1;
-  }
-  
-  .show {
-    display: block;
-  }
-  
-  /* Capas.css */
-  .texto-primera-capa {
-    margin: 20px;
-    padding: 10px;
-    background-color: transparent;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-    color: #333;
-  }
+  height: 300px;
+  width: 100%;
+  position: fixed;
+  z-index: 1;
+  bottom: -300px; /* Inicialmente oculta */
+  left: 0;
+  background-color: #111;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 20px;
+  display: flex;
+  justify-content: space-between;
+}
 
-  .btn{
-    display: flex;
-    /* border-radius: initial; */
-    border: darkkhaki;
-    /* background: rgb(5, 5, 5); */
-    position: absolute;
-    width: 2rem;
-    height: 2rem;
-    top: 9rem;
-    right: 4rem;
-    font-size: 20px;
-    align-items: center;
-    flex-direction: column;
-  }
+.sidenav.open {
+  bottom: 0; /* Muestra la barra */
+}
+
+.left-section,
+.center-section,
+.right-section {
+  flex: 1;
+  padding: 10px;
+}
+
+.left-section {
+  text-align: left;
+}
+
+.center-section {
+  text-align: center;
+  display: none; /* Ocultar inicialmente */
+}
+
+.center-section.show {
+  display: block; /* Mostrar cuando esté activo */
+}
+
+.right-section {
+  text-align: right;
+}
+
+.dropbtn {
+  background-color: transparent;
+  color: white;
+  padding: 16px;
+  font-size: 25px;
+  border: none;
+  cursor: pointer;
+}
+
+.open-btn {
+  font-size: 30px;
+  cursor: pointer;
+  position: fixed;
+  bottom: 20px; /* Posición inicial del botón */
+  left: 20px;
+  z-index: 2;
+  background-color: #111; /* Fondo del botón */
+  color: white; /* Color del texto */
+  border-radius: 50%; /* Forma circular */
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Sombra para resaltar */
+  transition: 0.5s; /* Animación sincronizada con la barra */
+}
+
+/* Cuando la barra está abierta, el botón sube junto con ella */
+.sidenav.open + .open-btn {
+  bottom: 320px; /* Ajusta esta posición según la altura de la barra */
+}
