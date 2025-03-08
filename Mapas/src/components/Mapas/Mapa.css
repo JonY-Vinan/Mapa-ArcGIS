@@ -37,3 +37,14 @@ button.toggle-button {
   right: 4rem;
   position: absolute;
 }
+
+.esri-view-user-storage {
+  display: none;
+}
+
+.esri-view-root {
+  display: flex
+;
+  height: 104vh;
+  width: 100%;
+}
