@@ -1,6 +1,6 @@
 /* Capas.css */
 .sidenav {
-  height: 225px;
+  height: 241px;
   width: 100%;
   position: fixed;
   z-index: 1;
@@ -12,7 +12,7 @@
   padding-top: 20px;
   display: flex;
   /* justify-content: space-between; */
-  align-items: baseline
+  /* align-items: baseline */
 }
 
 .sidenav.open {
@@ -39,9 +39,10 @@
 }
 
 .center-section.show {
-  width: 85%;
-  display: block; /* Mostrar cuando esté activo */
-}
+  width: 32%;
+  height: 71%;
+  display: flex
+;}
 
 .right-section {
   display: flex;
@@ -79,7 +80,7 @@
 
 /* Cuando la barra está abierta, el botón sube junto con ella */
 .sidenav.open + .open-btn {
-  bottom: 230px; /* Ajusta esta posición según la altura de la barra */
+  bottom: 245px; /* Ajusta esta posición según la altura de la barra */
 }
 
 /* Estilos para la tabla */
@@ -90,11 +91,18 @@
 }
 
 table {
-  width: 50%;
+  width: 100%;
   border-collapse: collapse;
 }
 
-table td {
+td {
+  height: 67px;
+  padding: 11px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+table tr {
   padding: 8px;
   border: 1px solid #ddd;
   text-align: left;

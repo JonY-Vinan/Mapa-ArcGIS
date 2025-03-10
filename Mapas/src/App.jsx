@@ -3,7 +3,7 @@ import './App.css';
 import Header from './components/Header/Header.jsx';
 import Mapas from './components/Mapas/Mapa.jsx';
 import Capas from './components/Capas/Capas.jsx';
-import Fichero from './components/Capas/fichero.jsx';
+// import Fichero from './components/Capas/fichero.jsx';
 
 function App() {
   // const [capa1Visible, setCapa1Visible] = useState(false);
