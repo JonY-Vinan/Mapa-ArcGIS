@@ -32,7 +32,7 @@ const Mapa = ({ setMapView, setMapSceneView, baseMap }) => {
     // Inicializar el mapa base
     const map = new Map({
 
-      basemap: baseMap?.basemap ? baseMap.basemap : 'hybrid',
+      basemap: baseMap?.basemap ? baseMap.basemap : 'gray-vector',
     });
 
     // Inicializar la vista del mapa 2D
@@ -47,7 +47,7 @@ const Mapa = ({ setMapView, setMapSceneView, baseMap }) => {
     const view3D = new SceneView({
       container: mapRef3D.current, // Contenedor del mapa 3D
       map: new Map({
-        basemap: baseMap?.basemap ? baseMap.basemap : 'hybrid',
+        basemap: baseMap?.basemap ? baseMap.basemap : 'gray-vector',
         ground: 'world-elevation',
       }), // Mapa creado previamente
       center: [-2.92528, 43.26271], // Coordenadas de Bilbao, España
